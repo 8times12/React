@@ -1,6 +1,9 @@
 import * as React from 'react';
 import * as enzyme from 'enzyme';
 import Hello from './Hello';
+import { enthusiasm } from '../reducers';
+import { StoreState } from '../types';
+import { incrementEnthusiasm, decrementEnthusiasm } from '../actions';
 
 it('renders the correct text when no enthusiasm level is given', () => {
     const hello = enzyme.shallow(<Hello name='太郎' />);
@@ -27,4 +30,28 @@ it('throws when the enthusiasm level is negative', () => {
     expect(() => {
         enzyme.shallow(<Hello name='太郎' enthusiasmLevel={-1} />);
     }).toThrow();
+});
+
+it('increments the enthusiasm level', () => {
+    const currState: StoreState = {
+        languageName: 'TypeScript',
+        enthusiasmLevel: 5
+    };
+    const nextState: StoreState = {
+        languageName: 'TypeScript',
+        enthusiasmLevel: 6
+    };
+    expect(nextState).toEqual(enthusiasm(currState, incrementEnthusiasm()));
+});
+
+it('decrements the enthusiasm level', () => {
+    const currState: StoreState = {
+        languageName: 'TypeScript',
+        enthusiasmLevel: 5
+    };
+    const nextState: StoreState = {
+        languageName: 'TypeScript',
+        enthusiasmLevel: 4
+    };
+    expect(nextState).toEqual(enthusiasm(currState, decrementEnthusiasm()));
 });
