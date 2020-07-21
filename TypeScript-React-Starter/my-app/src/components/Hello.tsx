@@ -4,6 +4,8 @@ import './Hello.css';
 export interface Props {
     name: string;
     enthusiasmLevel?: number;
+    onIncrement?: () => void;
+    onDecrement?: () => void;
 }
 
 interface State {
@@ -16,10 +18,12 @@ class Hello extends React.Component<Props, State> {
         this.state = {
             currentEnthusiam: props.enthusiasmLevel || 1
         };
+        this.onIncrement = props.onIncrement;
+        this.onDecrement = props.onDecrement;
     }
 
-    onIncrement = () => this.updateEnthusiam(this.state.currentEnthusiam + 1);
-    onDecrement = () => this.updateEnthusiam(this.state.currentEnthusiam - 1);
+    onIncrement?: () => void;
+    onDecrement?: () => void;
 
     render() {
         const {
