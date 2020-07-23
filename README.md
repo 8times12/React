@@ -1,2 +1,2 @@
 # React
-My projects being created with React.
+React練習用のレポジトリ。
