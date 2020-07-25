@@ -4,6 +4,8 @@ import './Hello.css';
 export interface Props {
     name: string;
     enthusiasmLevel?: number;
+    onIncrement?: () => void;
+    onDecrement?: () => void;
 }
 
 interface State {
@@ -18,13 +20,12 @@ class Hello extends React.Component<Props, State> {
         };
     }
 
-    onIncrement = () => this.updateEnthusiam(this.state.currentEnthusiam + 1);
-    onDecrement = () => this.updateEnthusiam(this.state.currentEnthusiam - 1);
-
     render() {
         const {
             name,
-            enthusiasmLevel = 1
+            enthusiasmLevel = 1,
+            onDecrement = () => this.updateEnthusiam(this.state.currentEnthusiam + 1),
+            onIncrement = () => this.updateEnthusiam(this.state.currentEnthusiam - 1)
         } = this.props;
 
         if (enthusiasmLevel <= 0) {
@@ -36,8 +37,8 @@ class Hello extends React.Component<Props, State> {
                 <div className="greeting">
                     {name}さん、いらっしゃい{getExclamationMarks(enthusiasmLevel)}
                 </div>
-                <button onClick={this.onDecrement}>-</button>
-                <button onClick={this.onIncrement}>+</button>
+                <button onClick={onDecrement}>-</button>
+                <button onClick={onIncrement}>+</button>
             </div>
         )
     }
