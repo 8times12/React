@@ -11,7 +11,7 @@ export const mapStateToProps: MapStateToPropsParam<Props, Props, StoreState> = s
     };
 }
 
-export const mapDispatchToProps: MapDispatchToPropsParam<{[actionName: string]: () => actions.EnthusiasmAction}, Props> = dispatch => {
+export const mapDispatchToProps: MapDispatchToPropsParam<actions.EnthusiasmDispatchParams, Props> = dispatch => {
     return {
         onIncrement: () => dispatch(actions.incrementEnthusiasm()),
         onDecrement: () => dispatch(actions.decrementEnthusiasm())
