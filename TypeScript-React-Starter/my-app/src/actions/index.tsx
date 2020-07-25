@@ -7,10 +7,14 @@ export interface DecrementEnthusiasm extends Action { type: constants.DECREMENT_
 
 export type EnthusiasmAction = IncrementEnthusiasm | DecrementEnthusiasm;
 
-export function incrementEnthusiasm(): IncrementEnthusiasm {
+export type EnthusiasmActionCreator = () => EnthusiasmAction;
+
+export type EnthusiasmDispatchParams = {[paramName: string]: () => EnthusiasmAction};
+
+export const incrementEnthusiasm:EnthusiasmActionCreator = () => {
     return { type: constants.INCREMENT_ENTHUSIASM }
 }
 
-export function decrementEnthusiasm(): DecrementEnthusiasm {
+export const decrementEnthusiasm:EnthusiasmActionCreator = () => {
     return { type: constants.DECREMENT_ENTHUSIASM }
 }
