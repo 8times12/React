@@ -2,7 +2,7 @@ import * as React from 'react';
 import './Hello.css';
 
 export interface Props {
-    name: string;
+    name?: string;
     enthusiasmLevel?: number;
     onIncrement?: () => void;
     onDecrement?: () => void;
