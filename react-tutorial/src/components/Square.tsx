@@ -1,14 +1,18 @@
 import React from "react";
 import './Square.scss';
+import { Checkers } from "../constants";
 
-class Square extends React.Component {
-    render() {
-        return (
-            <button type="button" className="square">
-                {/* TODO */}
-            </button>
-        );
-    }
+export interface Props {
+    checker: Checkers | null;
+    onCheck: () => void;
+}
+
+function Square(props: Props) {
+    return (
+        <button className="square" onClick={props.onCheck}>
+            {props.checker?.toString()}
+        </button>
+    )
 }
 
 export default Square;

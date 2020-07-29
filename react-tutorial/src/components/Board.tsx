@@ -1,15 +1,27 @@
 import React from "react";
 import Square from "./Square";
 import './Board.scss';
+import { Checkers } from "../constants";
+import { calculateWinner } from "../utils";
 
-class Board extends React.Component {
+export interface Props {
+    squares: (Checkers | null)[];
+    onCheck: (i: number) => void;
+}
+
+export interface State {
+    squares: (Checkers | null)[];
+    xIsNext: boolean;
+}
+
+class Board extends React.Component<Props, State> {
     renderSquare(i: number) {
-        return <Square />
+        return (
+            <Square checker={this.props.squares[i]} onCheck={() => this.props.onCheck(i)} />
+        );
     }
 
     render() {
-        const status = 'Next player: X';
-    
         return (
             <div>
                 <div className="status">{status}</div>
