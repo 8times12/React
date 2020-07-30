@@ -2,7 +2,7 @@ import React from "react";
 import Board from "./Board";
 import './Game.scss';
 import { Checkers } from "../constants";
-import { BoardHistory, BoardFace, BoardRecord, CheckLocation } from "../types";
+import { BoardHistory, BoardFace, BoardRecord, CheckLocation, Checker } from "../types";
 
 export interface Props {
 
@@ -14,7 +14,13 @@ export interface State {
     xIsNext: boolean;
     currentChecked: number | null;
     orderDesc: boolean;
+    line: [number, number, number] | null;
 }
+
+type Winner = {
+    winner: Checker;
+    line: [number, number, number] | null;
+};
 
 class Game extends React.Component<Props, State> {
     constructor(props: Props) {
@@ -26,7 +32,8 @@ class Game extends React.Component<Props, State> {
             stepNumber: 0,
             xIsNext: true,
             currentChecked: null,
-            orderDesc: false
+            orderDesc: false,
+            line: null
         };
     }
 
@@ -34,7 +41,7 @@ class Game extends React.Component<Props, State> {
         const history: BoardHistory = this.state.history.slice(0, this.state.stepNumber + 1);
         const current: BoardRecord = history[history.length - 1];
         const squares: BoardFace = [...current.squares];
-        if (calculateWinner(squares) || squares[i]) {
+        if (calculateWinner(squares).winner || squares[i]) {
             return;
         }
         squares[i] = this.state.xIsNext ? Checkers.X : Checkers.O;
@@ -63,16 +70,16 @@ class Game extends React.Component<Props, State> {
 
     render() {
         const {history, orderDesc} = this.state;
-        const current = history[this.state.stepNumber];
-        const winner = calculateWinner(current.squares);
+        const current: BoardRecord = history[this.state.stepNumber];
+        const {winner, line} = calculateWinner(current.squares);
 
-        const toggle = (
+        const toggle: JSX.Element = (
             <h3>
                 <button onClick={() => this.toggleOrder()}>↑↓</button>
             </h3>
         );
 
-        let moves = history.map((step, move) => {
+        let moves: JSX.Element[] = history.map((step, move) => {
             const desc = (() => {
                 if (move) {
                     const {x, y} = obtainMoveLocation(history, move);
@@ -91,8 +98,8 @@ class Game extends React.Component<Props, State> {
             moves = moves.reverse();
         }
 
-        const nextPlayer = this.state.xIsNext ? Checkers.X.toString() : Checkers.O.toString();
-        const status = (() => {
+        const nextPlayer: string = this.state.xIsNext ? Checkers.X.toString() : Checkers.O.toString();
+        const status: string = (() => {
             if (winner) {
                 return `Winner: ${winner}`;
             } else {
@@ -103,7 +110,11 @@ class Game extends React.Component<Props, State> {
         return (
             <div className="game">
                 <div className="game-board">
-                    <Board squares={current.squares} onCheck={(i) => this.handleClick(i)} currentChecked={this.state.currentChecked} />
+                    <Board
+                        squares={current.squares}
+                        onCheck={(i) => this.handleClick(i)}
+                        currentChecked={this.state.currentChecked}
+                        line={line} />
                 </div>
                 <div className="game-info">
                     <div>{status}</div>
@@ -119,8 +130,8 @@ class Game extends React.Component<Props, State> {
 
 export default Game;
 
-function calculateWinner(squares: BoardFace) {
-    const lines = [
+function calculateWinner(squares: BoardFace): Winner {
+    const lines: [number, number, number][] = [
       [0, 1, 2],
       [3, 4, 5],
       [6, 7, 8],
@@ -131,12 +142,18 @@ function calculateWinner(squares: BoardFace) {
       [2, 4, 6],
     ];
     for (let i = 0; i < lines.length; i++) {
-      const [a, b, c] = lines[i];
-      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-        return squares[a];
-      }
+        const [a, b, c] = lines[i];
+        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+            return {
+                winner: squares[a],
+                line: [a, b, c]
+            }
+        }
     }
-    return null;
+    return {
+        winner: null,
+        line: null
+    };
 }
 
 function obtainMoveLocation(history: BoardHistory, step: number): CheckLocation {

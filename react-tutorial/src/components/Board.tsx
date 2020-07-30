@@ -7,17 +7,27 @@ export interface Props {
     squares: BoardFace;
     onCheck: (i: number) => void;
     currentChecked: number | null;
+    line: [number, number, number] | null
 }
 
 class Board extends React.Component<Props> {
     renderSquare(i: number) {
         return (
-            <Square checker={this.props.squares[i]} onCheck={() => this.props.onCheck(i)} isCurrChecked={this.isCurrChecked(i)} />
+            <Square
+                checker={this.props.squares[i]}
+                onCheck={() => this.props.onCheck(i)}
+                isCurrChecked={this.isCurrChecked(i)}
+                isLine={this.isLine(i)}
+                key={i} />
         );
     }
 
     isCurrChecked(i: number): boolean {
-        return i === this.props.currentChecked;
+        return this.props.currentChecked === i;
+    }
+
+    isLine(i: number): boolean {
+        return !!this.props.line?.includes(i);
     }
 
     render() {
@@ -29,7 +39,7 @@ class Board extends React.Component<Props> {
                 rowInner.push(this.renderSquare(index++));
             }
             const row: JSX.Element = (
-                <div className="board-row">
+                <div className="board-row" key={col}>
                     {rowInner}
                 </div>
             );
