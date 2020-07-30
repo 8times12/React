@@ -12,6 +12,7 @@ export interface State {
     history: BoardHistory;
     stepNumber: number;
     xIsNext: boolean;
+    currentChecked: number | null;
 }
 
 class Game extends React.Component<Props, State> {
@@ -22,7 +23,8 @@ class Game extends React.Component<Props, State> {
                 squares: Array(9).fill(null)
             }],
             stepNumber: 0,
-            xIsNext: true
+            xIsNext: true,
+            currentChecked: null
         };
     }
 
@@ -39,7 +41,8 @@ class Game extends React.Component<Props, State> {
                 squares: squares
             }],
             stepNumber: history.length,
-            xIsNext: !this.state.xIsNext
+            xIsNext: !this.state.xIsNext,
+            currentChecked: i
         });
     }
 
@@ -83,7 +86,7 @@ class Game extends React.Component<Props, State> {
         return (
             <div className="game">
                 <div className="game-board">
-                    <Board squares={current.squares} onCheck={(i) => this.handleClick(i)}/>
+                    <Board squares={current.squares} onCheck={(i) => this.handleClick(i)} currentChecked={this.state.currentChecked} />
                 </div>
                 <div className="game-info">
                     <div>{status}</div>
@@ -122,9 +125,8 @@ function obtainMoveLocation(history: BoardHistory, step: number): CheckLocation 
     if (step === 0 && history.length === 1) {
         locationIndex = targetFace.findIndex((checker) => checker !== null);
     } else {
-        console.log(step)
-        const lastFace: BoardFace = [...history[step - 1].squares];
-        locationIndex = targetFace.findIndex((checker, location) => checker !== null && lastFace[location] == null);
+        const prevFace: BoardFace = [...history[step - 1].squares];
+        locationIndex = targetFace.findIndex((checker, location) => checker !== null && prevFace[location] == null);
     }
     return {
         x: locationIndex % 3 + 1,
