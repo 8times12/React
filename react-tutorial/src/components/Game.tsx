@@ -13,6 +13,7 @@ export interface State {
     stepNumber: number;
     xIsNext: boolean;
     currentChecked: number | null;
+    orderDesc: boolean;
 }
 
 class Game extends React.Component<Props, State> {
@@ -24,11 +25,12 @@ class Game extends React.Component<Props, State> {
             }],
             stepNumber: 0,
             xIsNext: true,
-            currentChecked: null
+            currentChecked: null,
+            orderDesc: false
         };
     }
 
-    handleClick(i: number) {
+    handleClick(i: number): void {
         const history: BoardHistory = this.state.history.slice(0, this.state.stepNumber + 1);
         const current: BoardRecord = history[history.length - 1];
         const squares: BoardFace = [...current.squares];
@@ -46,19 +48,31 @@ class Game extends React.Component<Props, State> {
         });
     }
 
-    jumpTo(step: number) {
+    jumpTo(step: number): void {
         this.setState({
             stepNumber: step,
             xIsNext: (step % 2) === 0
         })
     }
 
+    toggleOrder(): void {
+        this.setState({
+            orderDesc: !this.state.orderDesc
+        });
+    }
+
     render() {
-        const {history} = this.state;
+        const {history, orderDesc} = this.state;
         const current = history[this.state.stepNumber];
         const winner = calculateWinner(current.squares);
 
-        const moves = history.map((step, move) => {
+        const toggle = (
+            <h3>
+                <button onClick={() => this.toggleOrder()}>↑↓</button>
+            </h3>
+        );
+
+        let moves = history.map((step, move) => {
             const desc = (() => {
                 if (move) {
                     const {x, y} = obtainMoveLocation(history, move);
@@ -73,6 +87,9 @@ class Game extends React.Component<Props, State> {
                 </li>
             )
         });
+        if (orderDesc) {
+            moves = moves.reverse();
+        }
 
         const nextPlayer = this.state.xIsNext ? Checkers.X.toString() : Checkers.O.toString();
         const status = (() => {
@@ -90,7 +107,10 @@ class Game extends React.Component<Props, State> {
                 </div>
                 <div className="game-info">
                     <div>{status}</div>
-                    <ol>{moves}</ol>
+                    <ol>
+                        {toggle}
+                        {moves}
+                    </ol>
                 </div>
             </div>
         );
