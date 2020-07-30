@@ -10,7 +10,7 @@ export interface Props {
 function Square(props: Props) {
     return (
         <button className="square" onClick={props.onCheck}>
-            {props.checker?.toString()}
+            {props.checker}
         </button>
     )
 }

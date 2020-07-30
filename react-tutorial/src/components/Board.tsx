@@ -1,16 +1,15 @@
 import React from "react";
 import Square from "./Square";
 import './Board.scss';
-import { Checkers } from "../constants";
-import { calculateWinner } from "../utils";
+import { BoardFace } from "../types";
 
 export interface Props {
-    squares: (Checkers | null)[];
+    squares: BoardFace;
     onCheck: (i: number) => void;
 }
 
 export interface State {
-    squares: (Checkers | null)[];
+    squares: BoardFace;
     xIsNext: boolean;
 }
 
@@ -24,7 +23,6 @@ class Board extends React.Component<Props, State> {
     render() {
         return (
             <div>
-                <div className="status">{status}</div>
                 <div className="board-row">
                     {this.renderSquare(0)}
                     {this.renderSquare(1)}
