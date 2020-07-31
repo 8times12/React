@@ -72,6 +72,7 @@ class Game extends React.Component<Props, State> {
         const {history, orderDesc} = this.state;
         const current: BoardRecord = history[this.state.stepNumber];
         const {winner, line} = calculateWinner(current.squares);
+        const isAllChecked = hasAllChecked(current.squares);
 
         const toggle: JSX.Element = (
             <h3>
@@ -102,6 +103,8 @@ class Game extends React.Component<Props, State> {
         const status: string = (() => {
             if (winner) {
                 return `Winner: ${winner}`;
+            } else if (isAllChecked) {
+                return `Draw`;
             } else {
                 return `Next player: ${nextPlayer}`;
             }
@@ -169,4 +172,8 @@ function obtainMoveLocation(history: BoardHistory, step: number): CheckLocation 
         x: locationIndex % 3 + 1,
         y: Math.floor(locationIndex / 3) + 1 
     };
+}
+
+function hasAllChecked(squares: BoardFace): boolean {
+    return squares.every((square) => square !== null);
 }
