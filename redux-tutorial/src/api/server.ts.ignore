@@ -1,0 +1,213 @@
+// @ts-nocheck
+
+import {
+  Server,
+  Model,
+  Factory,
+  belongsTo,
+  hasMany,
+  RestSerializer,
+  ModelInstance,
+} from 'miragejs';
+
+import { nanoid } from '@reduxjs/toolkit';
+
+import faker from 'faker'
+import { sentence, paragraph, article } from 'txtgen';
+import { parseISO } from 'date-fns';
+import { seedrandom, prng } from 'seedrandom';
+import Schema from 'miragejs/orm/schema';
+
+const IdSerializer = RestSerializer.extend({
+  serializeIds: 'always',
+});
+
+const useSeededRandomNum: boolean = true;
+
+let rng: prng.Prng = seedrandom();
+
+if (useSeededRandomNum) {
+  let randomSeedString: string | null = localStorage.getItem('randomTimestampSeed');
+  let seedDate: Date;
+
+  if (randomSeedString) {
+    seedDate = new Date(randomSeedString);
+  } else {
+    seedDate = new Date();
+    randomSeedString = seedDate.toISOString();
+    localStorage.setItem('randomTimestampSeed', randomSeedString);
+  }
+
+  rng = seedrandom(randomSeedString);
+  seedrandom(rng, { global: true });
+  faker.seed(seedDate.getTime());
+}
+
+function getRandomInt(min: number, max: number): number {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(rng() * (max - min + 1)) + min;
+}
+
+function randomFromArray<T>(array: T[]): T {
+  const index: number = getRandomInt(0, array.length - 1)
+  return array[index];
+}
+
+const notificationTemplates = [
+  'poked you',
+  'says hi!',
+  `is glad we're friends`,
+  'sent you a gift',
+]
+
+new Server({
+  routes() {
+    this.namespace = 'fakeApi';
+
+    const server = this;
+
+    this.post('/posts', (schema, req) => {
+      const attrs: {[attr: string]: any} = {};
+      const json: {[attr: string]: any} = JSON.parse(req.requestBody);
+      if (json && json.data && json.data.attributes) {
+        Object.keys(json.data.attributes).reduce(
+          (_attrs: {[attr: string]: string}, key: string) => {
+            attrs[key] = (json.data.attributes[key] as string)
+              .replace(/-(a-z)/g, (m: string, p: string) => p.toUpperCase());
+            return attrs;
+          },
+          attrs
+        )
+      }
+      attrs.date = new Date().toISOString()
+      const user: ModelInstance | null = schema.find('users', attrs.userId);
+      attrs.user = user;
+
+      if (attrs.content === 'error') {
+        throw new Error('Could not save the post!');
+      }
+
+      const result = server.create('post', attrs);
+      return result;
+    });
+
+    this.get('/posts/:postId/comments', (schema, req) => {
+      const post = schema.find('posts', req.params.postId);
+      return post != null ? post.attrs.comments : null;
+    })
+
+    this.get('/notifications', (schema, req) => {
+      const numNotifications: number = getRandomInt(1, 5);
+
+      let pastDate: Date;
+
+      const now: Date = new Date();
+
+      if (req.queryParams.since) {
+        pastDate = parseISO(req.queryParams.since);
+      } else {
+        pastDate = new Date(now.valueOf());
+        pastDate.setMinutes(pastDate.getMinutes() - 15);
+      }
+
+      const notifications = [...Array(numNotifications)].map(() => {
+        const user = randomFromArray(schema.db.users);
+        const template = randomFromArray(notificationTemplates);
+        return {
+          id: nanoid(),
+          date: faker.date.between(pastDate, now).toISOString(),
+          message: template,
+          user: user.id,
+          read: false,
+          isNew: true,
+        };
+      })
+
+      return { notifications };
+    })
+  },
+  models: {
+    user: Model.extend({
+      posts: hasMany(),
+    }),
+    post: Model.extend({
+      user: belongsTo(),
+      comments: hasMany(),
+    }),
+    comment: Model.extend({
+      post: belongsTo(),
+    }),
+    notification: Model.extend({}),
+  },
+  factories: {
+    user: Factory.extend({
+      get id() {
+        return nanoid();
+      },
+      get firstName() {
+        return faker.name.firstName();
+      },
+      get lastName() {
+        return faker.name.lastName();
+      },
+      get name() {
+        return faker.name.findName(this.firstName, this.lastName);
+      },
+      get username() {
+        return faker.internet.userName(this.firstName, this.lastName);
+      },
+
+      afterCreate(user: Partial<ModelInstance<{}>>, server: Server) {
+        server.createList('post', 3, user);
+      },
+    }),
+    post: Factory.extend({
+      get id() {
+        return nanoid();
+      },
+      get title() {
+        return sentence()
+      },
+      get date() {
+        return faker.date.recent(7)
+      },
+      get content() {
+        return article(1)
+      },
+      get reactions() {
+        return {
+          thumbsUp: 0,
+          hooray: 0,
+          heart: 0,
+          rocket: 0,
+          eyes: 0,
+        };
+      },
+      afterCreate(post: any, server: any) {
+        //server.createList('comment', 3, { post })
+      },
+      user: association(),
+    }),
+    comment: Factory.extend({
+      id() {
+        return nanoid()
+      },
+      date() {
+        return faker.date.past(2)
+      },
+      text() {
+        return paragraph()
+      },
+      post: association(),
+    }),
+  },
+  serializers: {
+    user: IdSerializer,
+    post: IdSerializer,
+    comment: IdSerializer,
+  },
+  seeds(server) {
+    server.createList('user', 3)
+  },
+})
