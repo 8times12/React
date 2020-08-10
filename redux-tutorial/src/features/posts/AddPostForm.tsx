@@ -1,28 +1,20 @@
-import React, { useState, ChangeEvent } from 'react';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { nanoid } from '@reduxjs/toolkit';
 
 import { postAdded } from './postsSlice';
+import { PostOnChanged } from './utils';
 
-export const AddPostForm = () => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-
+export const AddPostForm: React.FunctionComponent = () => {
   const dispatch = useDispatch();
 
-  const getEventValue = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => (e.target) ? e.target.value : '';
-  const onTitleChanged = (e: ChangeEvent<HTMLInputElement>) => setTitle(getEventValue(e));
-  const onContentChaged = (e: ChangeEvent<HTMLTextAreaElement>) => setContent(getEventValue(e));
+  const {
+    title, setTitle, onTitleChanged,
+    content, setContent, onContentChanged
+  } = new PostOnChanged(useState(''), useState(''));
   const onSavePostClicked = () => {
     if (title && content) {
-      dispatch(
-        postAdded({
-          id: nanoid(),
-          title,
-          content
-        })
-      )
-
+      dispatch(postAdded(title, content));
       setTitle('');
       setContent('');
     }
@@ -45,7 +37,7 @@ export const AddPostForm = () => {
           id="postContent"
           name="postContent"
           value={content}
-          onChange={onContentChaged}
+          onChange={onContentChanged}
         />
         <button type="button" onClick={onSavePostClicked}>Save Post</button>
       </form>
