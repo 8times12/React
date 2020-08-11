@@ -1,12 +1,17 @@
-import { createSlice, Slice, CreateSliceOptions, nanoid, ValidateSliceCaseReducers, SliceCaseReducers } from '@reduxjs/toolkit';
-import { PostsState } from './types';
+import { createSlice, Slice, CreateSliceOptions, nanoid, SliceCaseReducers, CaseReducerWithPrepare, PayloadAction, CaseReducer } from '@reduxjs/toolkit';
+import { PostsState, PostState } from '../common/types';
 
 const initialState: PostsState = [
-  { id: '1', title: 'First Post!', content: 'Hello!' },
-  { id: '2', title: 'Second Post', content: 'More text' }
+  { id: '1', title: 'First Post!', content: 'Hello!', user: 'Katou' },
+  { id: '2', title: 'Second Post', content: 'More text', user: 'Tanaka' }
 ];
 
-const postsSliceOptions: CreateSliceOptions<PostsState> = {
+interface PostsReducers extends SliceCaseReducers<PostsState> {
+  // @ts-ignore
+  postAdded: CaseReducerWithPrepare<PostsState, PayloadAction<PostState>>;
+  postUpdated: CaseReducer<PostsState, PayloadAction<any>>
+}
+const postsSliceOptions: CreateSliceOptions<PostsState, PostsReducers> = {
   name: 'posts',
   initialState,
   reducers: {
@@ -14,9 +19,9 @@ const postsSliceOptions: CreateSliceOptions<PostsState> = {
       reducer(state, action) {
         state.push(action.payload);
       },
-      prepare(title, content) {
+      prepare(title: string, content: string, userId: string) {
         return {
-          payload: { id: nanoid(), title, content }
+          payload: { id: nanoid(), title, content, user: userId }
         }
       }
     },

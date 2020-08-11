@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { PostsState, State } from './types';
+import { PostsState, State } from '../common/types';
 
 export const PostsList: React.FunctionComponent = () => {
   const posts: PostsState = useSelector<State, PostsState>(state => state.posts);

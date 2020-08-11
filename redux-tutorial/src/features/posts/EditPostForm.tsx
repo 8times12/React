@@ -3,9 +3,8 @@ import { useDispatch } from 'react-redux';
 import { useHistory, RouteComponentProps } from 'react-router-dom';
 
 import { postUpdated } from './postsSlice';
-import { PostParams, PostState } from './types';
-import { usePost, showNoPostPage, usePostOnChanged } from './utils';
-import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
+import { PostParams, PostState } from '../common/types';
+import { usePost, showNoPostPage, usePostOnChanged } from '../common/utils';
 
 export const EditPostForm: React.FunctionComponent<RouteComponentProps<PostParams>> = ({ match }) => {
   const { postId } = match.params;

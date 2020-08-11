@@ -1,7 +1,7 @@
 import React from 'react';
 import { RouteComponentProps, Link } from 'react-router-dom';
-import { PostParams, PostState } from './types';
-import { usePost, showNoPostPage } from './utils';
+import { PostParams, PostState } from '../common/types';
+import { usePost, showNoPostPage } from '../common/utils';
 
 export const SinglePostPage: React.FunctionComponent<RouteComponentProps<PostParams>> = ({ match }) => {
   const { postId } = match.params;
