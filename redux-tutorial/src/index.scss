@@ -132,8 +132,10 @@ section {
   font-size: 1.5rem;
 }
 
-p.post-content {
-  margin-top: 10px;
+p {
+  post-content {
+    margin-top: 10px;
+  }
 }
 
 .button {
@@ -162,8 +164,6 @@ button {
     white-space: nowrap;
   }
 }
-
-/* https://projects.lukehaas.me/css-loaders/ , Loader #3 */
 
 .loader {
   font-size: 10px;

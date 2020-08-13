@@ -2,6 +2,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { postAdded } from './postsSlice';
+import { POST_TITLE_PLACEHOLDER } from '../common/constants';
 import { usePostOnChanged } from '../common/utils';
 import { State, UsersState } from '../common/types';
 
@@ -18,7 +19,6 @@ export const AddPostForm: React.FunctionComponent = () => {
 
   const onSavePostClicked = () => {
     if (title && content) {
-      // @ts-ignore
       dispatch(postAdded(title, content, userId));
       setTitle('');
       setContent('');
@@ -42,6 +42,7 @@ export const AddPostForm: React.FunctionComponent = () => {
           type="text"
           id="postTitle"
           name="postTitle"
+          placeholder={POST_TITLE_PLACEHOLDER}
           value={title}
           onChange={onTitleChanged}
         />

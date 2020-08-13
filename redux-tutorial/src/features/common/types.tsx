@@ -6,9 +6,11 @@ export interface State {
 export type PostsState = PostState[];
 export interface PostState {
   id: string;
+  date: string;
   title: string;
   content: string;
   user: string;
+  reactions: { [reaction: string]: number; }
 }
 export function isPostState(args: any): args is PostState {
   return args.id !== undefined

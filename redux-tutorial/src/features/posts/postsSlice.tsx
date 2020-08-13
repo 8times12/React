@@ -1,29 +1,28 @@
-import { createSlice, Slice, CreateSliceOptions, nanoid, SliceCaseReducers, CaseReducerWithPrepare, PayloadAction, CaseReducer } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, nanoid } from '@reduxjs/toolkit';
 import { PostsState, PostState } from '../common/types';
 
 const initialState: PostsState = [
-  { id: '1', title: 'First Post!', content: 'Hello!', user: 'Katou' },
-  { id: '2', title: 'Second Post', content: 'More text', user: 'Tanaka' }
+  { id: '1', title: 'First Post!', content: 'Hello!', date: '20200801', user: '', reactions: {} },
+  { id: '2', title: 'Second Post', content: 'More text', date: '20200801', user: '', reactions: {} }
 ];
 
-interface PostsReducers extends SliceCaseReducers<PostsState> {
-  // @ts-ignore
-  postAdded: CaseReducerWithPrepare<PostsState, PayloadAction<PostState>>;
-  postUpdated: CaseReducer<PostsState, PayloadAction<any>>
-}
-const postsSliceOptions: CreateSliceOptions<PostsState, PostsReducers> = {
+const postsSlice = createSlice({
   name: 'posts',
   initialState,
   reducers: {
     postAdded: {
-      reducer(state, action) {
-        state.push(action.payload);
-      },
-      prepare(title: string, content: string, userId: string) {
-        return {
-          payload: { id: nanoid(), title, content, user: userId }
+      reducer: (state, action: PayloadAction<PostState>) =>
+        void state.push(action.payload),
+      prepare: (title, content, userId) => ({
+        payload: {
+          id: nanoid(),
+          date: new Date().toISOString(),
+          title,
+          content,
+          user: userId,
+          reactions: {}
         }
-      }
+      })
     },
     postUpdated(state, action) {
       const { id, title, content } = action.payload;
@@ -32,10 +31,16 @@ const postsSliceOptions: CreateSliceOptions<PostsState, PostsReducers> = {
         existingPost.title = title;
         existingPost.content = content;
       }
+    },
+    reactionAdded(state, action) {
+      const { postId, reaction } = action.payload;
+      const existingPost = state.find(post => post.id === postId);
+      if (existingPost) {
+        existingPost.reactions[reaction]++;
+      }
     }
   }
-};
-const postsSlice: Slice<PostsState> = createSlice(postsSliceOptions);
+});
 
 export const { reducer: postsReducer, actions: postsActions } = postsSlice;
-export const { postAdded, postUpdated } = postsSlice.actions;
+export const { postAdded, postUpdated, reactionAdded } = postsSlice.actions;

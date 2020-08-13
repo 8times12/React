@@ -3,19 +3,16 @@ import { useDispatch } from 'react-redux';
 import { useHistory, RouteComponentProps } from 'react-router-dom';
 
 import { postUpdated } from './postsSlice';
-import { PostParams, PostState } from '../common/types';
-import { usePost, showNoPostPage, usePostOnChanged } from '../common/utils';
+import { PostParams } from '../common/types';
+import { usePost, usePostOnChanged } from '../common/utils';
 
 export const EditPostForm: React.FunctionComponent<RouteComponentProps<PostParams>> = ({ match }) => {
   const { postId } = match.params;
 
-  const post: PostState | undefined = usePost(postId);
-  if (!post) {
-    return showNoPostPage();
-  }
-
-  const dispatch: React.Dispatch<any> = useDispatch();
+  const dispatch = useDispatch();
   const history = useHistory();
+
+  const post = usePost(postId);
 
   const {
     title, onTitleChanged,

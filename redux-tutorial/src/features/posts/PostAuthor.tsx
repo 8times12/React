@@ -1,8 +1,11 @@
 import React from 'react';
-import { UserState } from '../common/types';
 import { useUser } from '../common/utils';
 
-export const PostAuthor: React.FunctionComponent<UserState> = ({ id: userId }) => {
+export interface Props {
+  userId: string;
+}
+
+export const PostAuthor: React.FunctionComponent<Props> = ({ userId }) => {
   const author = useUser(userId);
 
   return (
